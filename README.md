@@ -54,6 +54,45 @@ Questa guida raccoglie le soluzioni per i livelli di **Bandit (0 → 33)**, con:
 - Le password sono **oscurate** per rispetto della policy di OverTheWire.  
 - Tutti gli esempi sono **riproducibili su Ubuntu 22.04 LTS**.
 
+<details>
+<summary><b>Indice rapido livelli 0 → 33</b></summary>
+
+- [🔹 Livello 0 → 1](#-livello-0--1)
+- [🔹 Livello 1 → 2](#-livello-1--2)
+- [🔹 Livello 2 → 3](#-livello-2--3)
+- [🔹 Livello 3 → 4](#-livello-3--4)
+- [🔹 Livello 4 → 5](#-livello-4--5)
+- [🔹 Livello 5 → 6](#-livello-5--6)
+- [🔹 Livello 6 → 7](#-livello-6--7)
+- [🔹 Livello 7 → 8](#-livello-7--8)
+- [🔹 Livello 8 → 9](#-livello-8--9)
+- [🔹 Livello 9 → 10](#-livello-9--10)
+- [🔹 Livello 10 → 11](#-livello-10--11)
+- [🔹 Livello 11 → 12](#-livello-11--12)
+- [🔹 Livello 12 → 13](#-livello-12--13)
+- [🔹 Livello 13 → 14](#-livello-13--14)
+- [🔹 Livello 14 → 15](#-livello-14--15)
+- [🔹 Livello 15 → 16](#-livello-15--16)
+- [🔹 Livello 16 → 17](#-livello-16--17)
+- [🔹 Livello 17 → 18](#-livello-17--18)
+- [🔹 Livello 18 → 19](#-livello-18--19)
+- [🔹 Livello 19 → 20](#-livello-19--20)
+- [🔹 Livello 20 → 21](#-livello-20--21)
+- [🔹 Livello 21 → 22](#-livello-21--22)
+- [🔹 Livello 22 → 23](#-livello-22--23)
+- [🔹 Livello 23 → 24](#-livello-23--24)
+- [🔹 Livello 24 → 25](#-livello-24--25)
+- [🔹 Livello 25 → 26](#-livello-25--26)
+- [🔹 Livello 26 → 27](#-livello-26--27)
+- [🔹 Livello 27 → 28](#-livello-27--28)
+- [🔹 Livello 28 → 29](#-livello-28--29)
+- [🔹 Livello 29 → 30](#-livello-29--30)
+- [🔹 Livello 30 → 31](#-livello-30--31)
+- [🔹 Livello 31 → 32](#-livello-31--32)
+- [🔹 Livello 32 → 33](#-livello-32--33)
+
+</details>
+
 ---
 
 ## ✅ Formato dei contenuti
@@ -1154,4 +1193,13 @@ Digitando `$0`, si richiama il programma corrente (in questo caso `sh`) e si ott
 
 ---
 
+## 🏁 Epilogo
 
+Completare **Bandit 0 → 33** consolida solide basi di UNIX, networking e pensiero sistematico: leggere, verificare, sperimentare, automatizzare.  
+Questo report è pensato per essere **riproducibile** su Ubuntu 22.04 LTS e rispettoso della **no-spoiler policy** di OverTheWire.
+
+---
+
+## 🙏 Crediti 
+
+**OverTheWire — Bandit** è un progetto degli autori OverTheWire. Tutti i diritti dei contenuti originali appartengono ai rispettivi proprietari.

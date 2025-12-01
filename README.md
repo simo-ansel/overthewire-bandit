@@ -1184,7 +1184,7 @@ cat /etc/bandit_pass/bandit33
 ```
 
 ### ### 🧠 Spiegazione
-Il sistema sostituisce comandi digitati con la loro versione maiuscola, rendendoli invalidi (es. `ls` → `LS`). 
+Il sistema sostituisce comandi digitati con la loro versione maiuscola, rendendoli invalidi (es. `ls` → `LS`).
 Digitando `$0`, si richiama il programma corrente (in questo caso `sh`) e si ottiene una shell interattiva standard. Da lì si possono eseguire normalmente i comandi Linux e leggere la password per il livello 33.
 
 ### ### 🪄 Takeaway
@@ -1195,8 +1195,7 @@ Digitando `$0`, si richiama il programma corrente (in questo caso `sh`) e si ott
 
 ## 🏁 Epilogo
 
-Completare **Bandit 0 → 33** consolida solide basi di UNIX, networking e pensiero sistematico: leggere, verificare, sperimentare, automatizzare.  
-Questo report è pensato per essere **riproducibile** su Ubuntu 22.04 LTS e rispettoso della **no-spoiler policy** di OverTheWire.
+Completare **Bandit 0 → 33** consolida solide basi di UNIX, networking e pensiero sistematico.
 
 ---
 

@@ -21,31 +21,31 @@ Questa guida raccoglie le soluzioni per i livelli di **Bandit (0 → 33)**, con:
 ## 🧰 Tools — principali comandi e servizi
 
 ### 🌐 Rete
-`ssh`, `scp`, `nc`, `ncat`, `telnet`, `openssl s_client`, `socat`, `nmap`, `ss`, `netstat`
+`ssh` `scp` `nc` `ncat` `telnet` `openssl s_client` `socat` `nmap` `ss` `netstat`
 
 ### 📁 Filesystem & gestione file
-`ls`, `cd`, `pwd`, `find`, `file`, `stat`, `du`, `mkdir`, `mktemp`, `cp`, `mv`, `rm`, `touch`, `chmod`, `cat`, `diff`
+`ls` `cd` `pwd` `find` `file` `stat` `du` `mkdir` `mktemp` `cp` `mv` `rm` `touch` `chmod` `cat` `diff`
 
 ### 🧾 Testo & stream processing
-`grep`, `egrep`, `awk`, `sed`, `cut`, `sort`, `uniq`, `tr`, `wc`, `printf`, `echo`, `tail`, `head`
+`grep` `egrep` `awk` `sed` `cut` `sort` `uniq` `tr` `wc` `printf` `echo` `tail` `head`
 
 ### 🔡 Stringhe / binario
-`strings`, `xxd`, `base64`
+`strings` `xxd` `base64`
 
 ### 🔐 Hash & checksum
 `md5sum`
 
 ### 📦 Compressione e archivi
-`tar`, `gzip`, `bzip2`, `gunzip`, `bunzip2`
+`tar` `gzip` `bzip2` `gunzip` `bunzip2`
 
 ### ✏️ Editor & shell
-`more`, `vim`, `bash`, `sh`
+`more` `vim` `bash` `sh`
 
 ### ⚙️ Processi & job control
-`jobs`, `bg`, `fg`, `&`, `timeout`
+`jobs` `bg` `fg` `&` `timeout`
 
 ### 🌀 Version control (Git)
-`git clone`, `git log`, `git show`, `git tag`, `git branch`, `git checkout`, `git add -f`, `git commit`, `git push`, `git status`
+`git clone` `git log` `git show` `git tag` `git branch` `git checkout` `git add -f` `git commit` `git push` `git status`
 
 ---
 

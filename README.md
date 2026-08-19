@@ -1,1204 +1,1302 @@
-# OverTheWire **Bandit** — Walkthrough & Appunti
+# OverTheWire Bandit — Walkthrough & Notes
 
-[![Stato](https://img.shields.io/badge/Completato-Livelli_0%E2%86%9233-brightgreen)](#)
-[![Sistema](https://img.shields.io/badge/OS-Ubuntu_22.04_LTS-lightgrey)](#)
-[![Ultimo aggiornamento](https://img.shields.io/badge/Aggiornamento-2025--10--29-blue)](#)
+[![Status](https://img.shields.io/badge/Status-Completed%20Levels_0%E2%86%9233-brightgreen)](#)
+[![System](https://img.shields.io/badge/OS-Ubuntu_22.04_LTS-lightgrey)](#)
+[![Last Updated](https://img.shields.io/badge/Updated-2025--10--29-blue)](#)
 
-> Percorso riproducibile attraverso **OverTheWire — Bandit**.  
-> Questo README documenta l’approccio, i comandi e le tecniche usate per risolvere i livelli.  
-> Tutte le **password sono oscurate** in conformità con la policy ufficiale di OverTheWire.
-
----
-
-## 🧭 Introduzione
-Questa guida raccoglie le soluzioni per i livelli di **Bandit (0 → 33)**, con:
-- comandi e workflow utilizzati;
-- spiegazione dei passaggi logici;
-- esempi di snippet testabili su Linux (**Ubuntu 22.04 LTS**).
+> Practical walkthrough and technical notes for the OverTheWire Bandit wargame.
+> This repository documents the Linux, networking, authentication and privilege-escalation techniques used to solve levels 0–33.
+> Passwords and challenge credentials are redacted.
 
 ---
 
-## 🧰 Tools — principali comandi e servizi
+## Introduction
 
-### 🌐 Rete
-`ssh` `scp` `nc` `ncat` `telnet` `openssl s_client` `socat` `nmap` `ss` `netstat`
+Bandit is a Linux-based wargame designed to develop practical knowledge of Unix systems and fundamental cybersecurity concepts.
 
-### 📁 Filesystem & gestione file
-`ls` `cd` `pwd` `find` `file` `stat` `du` `mkdir` `mktemp` `cp` `mv` `rm` `touch` `chmod` `cat` `diff`
+This repository documents the solutions for levels 0–33, with a focus on:
 
-### 🧾 Testo & stream processing
-`grep` `egrep` `awk` `sed` `cut` `sort` `uniq` `tr` `wc` `printf` `echo` `tail` `head`
+- Linux filesystem and permissions
+- File enumeration
+- Shell behaviour
+- Text and binary analysis
+- Encoding and compression
+- SSH authentication
+- TCP and TLS
+- Network reconnaissance
+- SUID binaries
+- Cron jobs
+- Privilege escalation
+- Restricted shells
+- Git history and repository analysis
+- Basic automation and brute-force techniques
 
-### 🔡 Stringhe / binario
-`strings` `xxd` `base64`
-
-### 🔐 Hash & checksum
-`md5sum`
-
-### 📦 Compressione e archivi
-`tar` `gzip` `bzip2` `gunzip` `bunzip2`
-
-### ✏️ Editor & shell
-`more` `vim` `bash` `sh`
-
-### ⚙️ Processi & job control
-`jobs` `bg` `fg` `&` `timeout`
-
-### 🌀 Version control (Git)
-`git clone` `git log` `git show` `git tag` `git branch` `git checkout` `git add -f` `git commit` `git push` `git status`
+The goal is to document not only the commands used to complete each level, but also the underlying security concept demonstrated by the challenge.
 
 ---
 
-# 🧩 Percorso dei Livelli
-- Ogni livello introduce un nuovo concetto di sicurezza o un comando Linux utile alla progressione.  
-- Le password sono **oscurate** per rispetto della policy di OverTheWire.  
-- Tutti gli esempi sono **riproducibili su Ubuntu 22.04 LTS**.
+## Tools
 
-<details>
-<summary><b>Indice rapido livelli 0 → 33</b></summary>
+### Remote Access
 
-- [🔹 Livello 0 → 1](#-livello-0--1)
-- [🔹 Livello 1 → 2](#-livello-1--2)
-- [🔹 Livello 2 → 3](#-livello-2--3)
-- [🔹 Livello 3 → 4](#-livello-3--4)
-- [🔹 Livello 4 → 5](#-livello-4--5)
-- [🔹 Livello 5 → 6](#-livello-5--6)
-- [🔹 Livello 6 → 7](#-livello-6--7)
-- [🔹 Livello 7 → 8](#-livello-7--8)
-- [🔹 Livello 8 → 9](#-livello-8--9)
-- [🔹 Livello 9 → 10](#-livello-9--10)
-- [🔹 Livello 10 → 11](#-livello-10--11)
-- [🔹 Livello 11 → 12](#-livello-11--12)
-- [🔹 Livello 12 → 13](#-livello-12--13)
-- [🔹 Livello 13 → 14](#-livello-13--14)
-- [🔹 Livello 14 → 15](#-livello-14--15)
-- [🔹 Livello 15 → 16](#-livello-15--16)
-- [🔹 Livello 16 → 17](#-livello-16--17)
-- [🔹 Livello 17 → 18](#-livello-17--18)
-- [🔹 Livello 18 → 19](#-livello-18--19)
-- [🔹 Livello 19 → 20](#-livello-19--20)
-- [🔹 Livello 20 → 21](#-livello-20--21)
-- [🔹 Livello 21 → 22](#-livello-21--22)
-- [🔹 Livello 22 → 23](#-livello-22--23)
-- [🔹 Livello 23 → 24](#-livello-23--24)
-- [🔹 Livello 24 → 25](#-livello-24--25)
-- [🔹 Livello 25 → 26](#-livello-25--26)
-- [🔹 Livello 26 → 27](#-livello-26--27)
-- [🔹 Livello 27 → 28](#-livello-27--28)
-- [🔹 Livello 28 → 29](#-livello-28--29)
-- [🔹 Livello 29 → 30](#-livello-29--30)
-- [🔹 Livello 30 → 31](#-livello-30--31)
-- [🔹 Livello 31 → 32](#-livello-31--32)
-- [🔹 Livello 32 → 33](#-livello-32--33)
+```text
+ssh
+scp
+```
 
-</details>
+### Networking
+
+```text
+nc
+ncat
+telnet
+openssl s_client
+nmap
+ss
+netstat
+```
+
+### Filesystem
+
+```text
+ls
+cd
+pwd
+find
+file
+stat
+du
+mkdir
+mktemp
+cp
+mv
+rm
+touch
+chmod
+```
+
+### Text Processing
+
+```text
+grep
+awk
+sed
+cut
+sort
+uniq
+tr
+wc
+printf
+echo
+head
+tail
+```
+
+### Binary and Encoding
+
+```text
+strings
+xxd
+base64
+```
+
+### Compression
+
+```text
+tar
+gzip
+gunzip
+bzip2
+bunzip2
+```
+
+### Shell and Process Management
+
+```text
+bash
+sh
+more
+vim
+jobs
+bg
+fg
+timeout
+```
+
+### Git
+
+```text
+git clone
+git log
+git show
+git tag
+git branch
+git checkout
+git add
+git commit
+git push
+git status
+```
 
 ---
 
-## ✅ Formato dei contenuti
-Ogni livello seguente è strutturato con:
+## Methodology
 
-1. **🎯 Obiettivo** — descrizione breve del livello;
-2. **💻 Comandi principali** — snippet eseguibili;
-3. **🧠 Spiegazione** — analisi del funzionamento;  
-4. **🪄 Takeaway** — concetto o tecnica da ricordare.
+The general workflow used throughout Bandit was:
+
+1. Enumerate the current environment.
+2. Identify relevant files, processes or network services.
+3. Inspect permissions, ownership and execution context.
+4. Determine how the target behaves.
+5. Identify the trust boundary involved.
+6. Determine whether user-controlled input can cross that boundary.
+7. Exploit the intended weakness.
+8. Verify the result and move to the next level.
+
+The challenge progressively introduces increasingly security-oriented variants of this process.
 
 ---
 
-## 🔹 Livello 0 → 1
+## Level 0 → 1
 
-### 🎯 Obiettivo
-Effettuare il primo accesso via **SSH** al server `bandit.labs.overthewire.org` (porta `2220`) con le credenziali fornite, e trovare la password per il livello 1 nel file `readme`.
+### Objective
 
-### 💻 Comandi principali
+Establish the initial SSH connection and locate the password for the next level.
+
+### Method
+
+Connect to the Bandit server on port 2220:
+
 ```bash
-# Connessione al server (porta 2220)
 ssh bandit0@bandit.labs.overthewire.org -p 2220
+```
 
-# Una volta loggati, leggere il file readme
+Read the `readme` file:
+
+```bash
 cat readme
-# → password per il livello 1
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Questo primo livello introduce il concetto di **accesso remoto sicuro tramite SSH** e mostra la struttura tipica del gioco:  
-1. collegarsi al server;
-2. esplorare la home;
-3. trovare il file con la password per il livello successivo.
+### Takeaway
 
-### 🪄 Takeaway
-- Ricorda sempre di specificare la **porta corretta** (`-p 2220`);
+SSH is the primary remote-access mechanism used throughout the challenge. Always verify the target host, username and port before investigating the environment.
 
 ---
 
-## 🔹 Livello 1 → 2
+## Level 1 → 2
 
-### 🎯 Obiettivo
-Trovare la password per il livello 2 leggendo un file chiamato `-` presente nella home dell'utente.
+### Objective
 
-### 💻 Comandi principali
+Read a file whose name is `-`.
+
+### Method
+
+List the directory:
+
 ```bash
-# Visualizza i file nella home
 ls -la
+```
 
-# Visualizza il contenuto del file chiamato '-'
-# NOTA: il prefisso ./ è necessario perché '-' può essere interpretato come opzione
+Explicitly reference the filename:
+
+```bash
 cat ./-
-# → password per il livello 2
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Il nome `-` è ambiguo per molti comandi perché `-` viene usato come prefisso per le opzioni. Usando `./-` forziamo il comando a trattarlo come **nome di file** nella directory corrente. 
+### Takeaway
 
-### 🪄 Takeaway
-- Quando trovi nomi di file strani (es. `-`, `--help`, ` ` (spazi)), prova a referenziarli con `./nome` o con il percorso assoluto.
+A filename beginning with `-` may be interpreted as a command-line option. Prefixing it with `./` forces the command to treat it as a path.
+
+This is a basic example of how shell parsing affects command execution.
 
 ---
 
-## 🔹 Livello 2 → 3
+## Level 2 → 3
 
-### 🎯 Obiettivo
-Trovare la password per il livello 3 leggendo un file chiamato `--spaces in this filename--` presente nella home dell'utente.
+### Objective
 
-### 💻 Comandi principali
+Read a file containing spaces in its name.
+
+### Method
+
+Escape the spaces:
+
 ```bash
-# Visualizzare la lista dei file (nota spazi nel nome)
-ls -la
-
-# Leggere il file che contiene spazi (escape con backslash o usare virgolette)
 cat ./--spaces\ in\ this\ filename--
-# → password per il livello 3
-# [REDACTED]
 ```
 
-Alternativa (più leggibile): 
-``` bash
+or quote the complete path:
+
+```bash
 cat "./--spaces in this filename--"
 ```
 
-### 🧠 Spiegazione
-I nomi di file con spazi vanno gestiti correttamente: la shell separa gli argomenti sugli spazi, quindi è necessario escapare gli spazi (\ ) o racchiudere l'intero nome tra virgolette.
+### Takeaway
 
-### 🪄 Takeaway
-- Quando incontri file con spazi, usa `\ ` o `"..."`;
-- Abitudine utile: se hai dubbi sul nome, usa il completamento tab (`Tab`) per lasciare che la shell gestisca gli escape.
+The shell splits unquoted arguments on whitespace. Proper quoting and escaping are therefore essential when handling arbitrary filenames.
 
 ---
 
-## 🔹 Livello 3 → 4
+## Level 3 → 4
 
-### 🎯 Obiettivo
-Trovare la password per il livello 4 nascosta in un file **nascosto** dentro la directory `inhere/`.
+### Objective
 
-### 💻 Comandi principali
+Locate a hidden file inside the `inhere` directory.
+
+### Method
+
 ```bash
-# entrare nella directory e mostrare anche i file nascosti
 cd inhere
 ls -la
+```
 
-# visualizzare il file nascosto
+Read the hidden file:
+
+```bash
 cat ...Hiding-from-you
-# → password per il livello 4
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-I file il cui nome inizia con un punto (.) sono considerati nascosti; `ls` senza `-a` non li mostra. Il comando `ls -a` elenca tutto, compresi `.` e `..`, e eventuali file nascosti creati con nomi atipici (es. `...Hiding-from-you`).
+### Takeaway
 
-### 🪄 Takeaway
-- Usa sempre `ls -la` quando cerchi file nascosti o nomi strani;
-- Buona pratica: ispeziona i permessi (`ls -l`) se qualcosa non è leggibile.
+Files beginning with `.` are not displayed by a standard `ls` invocation. Using `ls -la` is a reliable first step when enumerating a directory.
 
 ---
 
-## 🔹 Livello 4 → 5
+## Level 4 → 5
 
-### 🎯 Obiettivo
-Trovare la password per il livello 5 leggendo l’unico file **human-readable** presente nella directory `inhere/`.
+### Objective
 
-### 💻 Comandi principali
+Identify the only human-readable file among several candidates.
+
+### Method
+
+Inspect all files:
+
 ```bash
-cd inhere/
-# controllare  tipo di file per i file che iniziano con -file0
-file ./-file0*
+cd inhere
+file ./-file*
+```
 
-# individuato il file leggibile (-file07), leggerne il contenuto
+The relevant file can then be read directly.
+
+```bash
 cat ./-file07
-# → password per il livello 5
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-I file nella directory possono essere di vari formati (binari, dati compressi, ecc.). Il comando `file` identifica il tipo di ciascun elemento: qui solo `-file07` è `ASCII text` quindi è l’unico ad essere leggibile.
+### Takeaway
 
-> [!TIP] Se l’output del terminale è “mangiato” da caratteri non stampabili, esegui `reset` per ripristinare la tty prima di usare `cat`.
+`file` identifies the format of a file from its contents rather than relying solely on its filename.
 
-### 🪄 Takeaway
-- Usa `file` per distinguere file binari da file di testo prima di leggere.
-  
----
-
-## 🔹 Livello 5 → 6
-
-### 🎯 Obiettivo
-Trovare la password per il livello 6 cercando sotto `inhere/` un file che soddisfi **tutte** le condizioni: leggibile dall’umano, **esattamente 1033 byte** e **non eseguibile**.
-
-### 💻 Comandi principali
-```bash
-# dalla home dell'utente
-# trovare file di 1033 byte che non siano eseguibili
-find -type f -size 1033c ! -executable
-
-# esempio risultato:
-# ./inhere/maybehere07/.file2
-
-# leggere il file trovato
-cat inhere/maybehere07/.file2
-# → password per il livello 6
-# [REDACTED]
-```
-
-### 🧠 Spiegazione
-`find` consente di combinare filtri precisi: `-size 1033c` cerca file **esattamente** di 1033 byte (unità `c` = byte), mentre `! -executable` esclude file con bit esecuzione impostato.
-
-### 🪄 Takeaway
-- `find` è potente per criteri combinati (dimensione, permessi, tipo, proprietà);
-- Ricorda che `-size` ha unità diverse (`c` per byte, `k` per kilobyte, ecc.).  
+This is useful when analysing unknown or deliberately misleading files.
 
 ---
 
-## 🔹 Livello 6 → 7
+## Level 5 → 6
 
-### 🎯 Obiettivo
-Trovare la password per il livello 7 cercando sul filesystem un file che soddisfi **tutti** i seguenti vincoli:  
-- proprietario **user = bandit7**;
-- gruppo **group = bandit6**;
-- dimensione **33 byte**.
+### Objective
 
-### 💻 Comandi principali
+Find a readable, non-executable file with an exact size of 1033 bytes.
+
+### Method
+
 ```bash
-# ricerca ricorsiva su tutto il filesystem
-find / -user bandit7 -group bandit6 -size 33c -type f 2>/dev/null
+find . -type f -size 1033c ! -executable
+```
 
-# esempio: risultato trovato
-# /var/lib/dpkg/info/bandit7.password
+Read the resulting file:
 
-# leggere il file per ottenere la password 
+```bash
+cat ./inhere/maybehere07/.file2
+```
+
+### Takeaway
+
+`find` can combine multiple predicates to perform precise filesystem enumeration.
+
+Important filters include:
+
+```text
+-type
+-size
+-user
+-group
+-perm
+-executable
+-name
+```
+
+---
+
+## Level 6 → 7
+
+### Objective
+
+Locate a file anywhere on the filesystem matching specific ownership and size constraints.
+
+### Method
+
+```bash
+find / \
+    -user bandit7 \
+    -group bandit6 \
+    -size 33c \
+    -type f \
+    2>/dev/null
+```
+
+Read the matching file:
+
+```bash
 cat /var/lib/dpkg/info/bandit7.password
-# → password per il livello 7
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Usiamo `find` con filtri combinati:
-- `-user` e `-group` per limitare la ricerca alla proprietà del file;
-- `-size 33c` per selezionare esattamente 33 byte (`c` = byte);
-- `-type f` per limitare ai file normali;
-- `2>/dev/null` elimina i messaggi di errore dovuti a directory inaccessibili, rendendo l'output leggibile.
+### Takeaway
 
-### 🪄 Takeaway
-- `find` è lo strumento più efficace per ricerche basate su proprietà (owner/group/size/permessi);
-- Quando fai ricerche a livello di root, filtra errori di permessi con `2>/dev/null` per non essere sommerso dagli errori;
-- Se trovi il file ma non puoi leggerlo, verifica permessi e possibili restrizioni.
+Filesystem enumeration becomes significantly more powerful when combined with ownership, group and size constraints.
+
+Redirecting permission errors to `/dev/null` also keeps large recursive searches manageable.
 
 ---
 
-## 🔹 Livello 7 → 8
+## Level 7 → 8
 
-### 🎯 Obiettivo
-Trovare la password per il livello 8 all'interno di `data.txt`: la password è la stringa che compare **accanto** alla parola `millionth`.
+### Objective
 
-### 💻 Comandi principali
+Find the value associated with the keyword `millionth` in `data.txt`.
+
+### Method
+
 ```bash
-# cercare la riga contenente la parola 'millionth' e mostrare il secondo campo
-cat data.txt | grep millionth
-# → riga per la password per il livello 8
-# millionth    [REDACTED]
+grep millionth data.txt
 ```
 
-### 🧠 Spiegazione
-Qui il file `data.txt` contiene righe di testo strutturate: la parola chiave `millionth` è seguita dalla password. `grep` individua la riga corretta.
+### Takeaway
 
-### 🪄 Takeaway
-- Quando una password è "vicino" ad una parola-chiave, usa `grep` per localizzare la riga; 
-- Abitudine utile: testare il pattern con `grep -n` per vedere numeri di riga se necessario.
+`grep` is one of the most useful tools for quickly locating relevant data in large text files.
 
 ---
 
-## 🔹 Livello 8 → 9
+## Level 8 → 9
 
-### 🎯 Obiettivo
-Trovare la password per il livello 9 all'interno del file `data.txt`: la password è **l'unica riga** che compare **una sola volta** nel file (tutte le altre righe sono duplicate).
+### Objective
 
-### 💻 Comandi principali
+Find the only line in `data.txt` that appears once.
+
+### Method
+
 ```bash
-# trovare la riga unica usando sort + uniq
 sort data.txt | uniq -u
-# → riga con la password per il livello 9
-# → [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Quando un file contiene molte righe duplicate e una sola riga unica, ordinare (`sort`) e poi usare `uniq -u` è il modo più semplice per isolare la riga non duplicata. `uniq -u` stampa solo le righe che non hanno duplicati consecutivi — per questo prima si usa `sort` che raggruppa le copie insieme.
+### Takeaway
 
-### 🪄 Takeaway
-- `sort | uniq -u` è una pattern-library utile per trovare elementi unici in dataset testuali;
-- Se vuoi vedere anche il conteggio delle occorrenze, usa `uniq -c`.
+`uniq` only detects adjacent duplicate lines, which is why sorting is performed first.
+
+The pattern:
+
+```text
+sort | uniq
+```
+
+is a fundamental Unix technique for analysing repeated values.
 
 ---
 
-## 🔹 Livello 9 → 10
+## Level 9 → 10
 
-### 🎯 Obiettivo
-Recuperare la password per il livello 10 leggendo `data.txt`: la password è contenuta in una delle poche stringhe "leggibili", **preceduta da più caratteri `=`**.
+### Objective
 
-### 💻 Comandi principali
+Identify the only human-readable string containing the password inside a binary file.
+
+### Method
+
+Extract printable strings:
+
 ```bash
-# estrarre le stringhe leggibili e filtrare quelle che hanno più '=' prima di un token lungo
-strings data.txt | grep -oE '={2,}[[:space:]]*[A-Za-z0-9+/=]{20,}'
-# → password per il livello 10 
-# ========== [REDACTED]
+strings data.txt
 ```
 
-### 🧠 Spiegazione
-`strings` estrae sequenze imprimibili da file binari o misti; tra queste si trova la stringa di interesse preceduta da molti `=`. `grep -oE` con una espressione regex mirata individua esattamente le occorrenze con almeno due `=` seguiti da un token alfanumerico di lunghezza adeguata (qui la password).
+Filter the relevant output:
 
-### 🪄 Takeaway
-- `strings` è indispensabile per analizzare file binari o "mischiati";
-- Costruisci regex conservative per evitare falsi positivi.
+```bash
+strings data.txt | grep -E '={2,}'
+```
+
+### Takeaway
+
+`strings` is useful when analysing binary or mixed-content files for embedded text, credentials or other printable artefacts.
 
 ---
 
-## 🔹 Livello 10 → 11
+## Level 10 → 11
 
-### 🎯 Obiettivo
-Decodificare il contenuto Base64 del file `data.txt` per recuperare la password per il livello 11.
+### Objective
 
-### 💻 Comandi principali
+Decode Base64 data contained in `data.txt`.
+
+### Method
+
 ```bash
-# Decodificare il file e cercare il token (esempio)
-base64 -d data.txt | grep -oE '[A-Za-z0-9]{20,}'
-
-# → password per il livello 11
-# [REDACTED]
+base64 -d data.txt
 ```
 
-### 🧠 Spiegazione
-`base64 -d` decodifica il flusso Base64 in output testuale leggibile.
+### Takeaway
 
-### 🪄 Takeaway
-- Usa `base64 -d` per trasformare dati codificati in Base64 in testo;
-- Combina decodifica + parsing per estrarre rapidamente la password.
+Base64 is an encoding mechanism rather than encryption. Encoded data can be decoded without a secret key.
 
 ---
 
-## 🔹 Livello 11 → 12
+## Level 11 → 12
 
-### 🎯 Obiettivo
-Applicare la rotazione ROT13 (lettere A–Z / a–z spostate di 13 posizioni) al contenuto di `data.txt` per ottenere la password per il livello 12.
+### Objective
 
-### 💻 Comandi principali
+Decode a ROT13-transformed password.
+
+### Method
+
 ```bash
-# Applicare ROT13 e leggere la riga contenente la password
 tr 'A-Za-z' 'N-ZA-Mn-za-m' < data.txt
-
-# → password per il livello 12
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-ROT13 è una cifratura di tipo Cesare con shift 13; `tr` mappa ogni lettera al suo corrispondente spostato di 13 posizioni.
+### Takeaway
 
-### 🪄 Takeaway
-- `tr` è lo strumento semplice e veloce per trasposizioni di caratteri (ROT13, maiuscole/minuscole, ecc.).
+ROT13 is a Caesar cipher with a fixed rotation and provides no meaningful confidentiality.
 
 ---
 
-## 🔹 Livello 12 → 13
+## Level 12 → 13
 
-### 🎯 Obiettivo
-Il file `data.txt` è un **hexdump** di un file che è stato **ripetutamente compresso**. L’obiettivo è ricostruire il file originale (invertire l’hexdump) e poi estrarlo passo-passo fino ad ottenere il testo contenente la password per il livello 13.
+### Objective
 
-### 💻 Comandi principali
+Reconstruct and repeatedly decompress a file represented as a hexdump.
+
+### Method
+
+Create a temporary working directory:
+
 ```bash
-# creare una directory di lavoro sicura sotto /tmp
 mktemp -d
 cd /tmp/tmp.XXXXXX
+```
 
-# convertire l'hexdump in binario
+Reconstruct the binary file:
+
+```bash
 xxd -r data.txt data.bin
+```
 
-# identificare il formato e decomprimere in base al tipo
+Identify its format:
+
+```bash
 file data.bin
-
-# esempio di flusso (adattare i nomi e ripetere i passaggi in base all'output di `file`):
-mv data.bin data.gz            # se file è gzip
-gzip -d data.gz
-
-mv data.bin data.bz2               # se file è bzip2
-bzip2 -d data.bz2
-
-mv data.bin data.tar               # se file è tar
-tar xf data.tar
-
-# ripetere: file -> rinomina -> decomprimi ... finché `file` non dice "ASCII text"
-file data*
-cat data
-# → password per il livello 13
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-1. `xxd -r` ricostruisce il contenuto binario a partire dall’hexdump;
-2. Il comando `file` dice quale compressione/archivio è presente (gzip, bzip2, tar, ecc.);
-3. Rinomina il file in base al formato (`.gz`, `.bz2`, `.tar`) e usa lo strumento adatto (`gzip -d`, `bzip2 -d`, `tar xf`) per decomprimere/estrarre;  
-4. I file sono nidificati: dopo ogni estrazione riesegui `file` e ripeti il procedimento finché non ottieni testo leggibile.
+Apply the appropriate decompression or extraction tool:
 
-### 🪄 Takeaway
-- Lavora sempre in una directory temporanea (`mktemp -d`) per non inquinare la home e per sicurezza;  
-- Rinomina i file con estensioni appropriate (es. `.gz`, `.bz2`, `.tar`) per semplificare il flusso mentale.
+```text
+gzip
+bzip2
+tar
+```
+
+Repeat:
+
+```text
+file
+→ identify format
+→ decompress or extract
+→ file
+→ repeat
+```
+
+until the resulting file is readable text.
+
+### Takeaway
+
+When analysing unknown files, identify the format from the data itself rather than relying on the filename or extension.
 
 ---
 
-## 🔹 Livello 13 → 14
+## Level 13 → 14
 
-### 🎯 Obiettivo
-Per questo livello non ottieni direttamente la password per il livello 14. Invece, ti viene fornita una **chiave SSH privata** sul server di `bandit13` che dovrai copiare in locale e usare per autenticarti come `bandit14`.
+### Objective
 
-### 💻 Comandi principali
+Use an SSH private key provided by the current account to authenticate as `bandit14`.
+
+### Method
+
+Copy the private key to the local machine:
+
 ```bash
-# dalla tua macchina locale, copiare la chiave privata dal server (porta 2220)
-scp -P 2220 bandit13@bandit.labs.overthewire.org:~/sshkey.private .
+scp -P 2220 \
+    bandit13@bandit.labs.overthewire.org:~/sshkey.private \
+    .
+```
 
-# proteggere la chiave
+Restrict its permissions:
+
+```bash
 chmod 600 sshkey.private
-
-# con la chiave privata, connettersi come bandit14 (porta 2220)
-ssh -i sshkey.private -p 2220 bandit14@bandit.labs.overthewire.org
-
-# una volta dentro:
-cat /etc/bandit_pass/bandit14
-# → password per il livello 14
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-- `scp` copia la chiave privata dal server remoto alla macchina locale;
-- È fondamentale impostare permessi restrittivi (`chmod 600`) sulla chiave prima di usarla con `ssh`, altrimenti `ssh` rifiuterà l’uso per ragioni di sicurezza.
-- Una volta connessi come `bandit14`, si può leggere `/etc/bandit_pass/bandit14` per ottenere la password per il livello 14.
+Connect using the key:
 
-### 🪄 Takeaway
-- Tratta la chiave privata come materiale **sensibile**: non committarla mai in un repo e assicurati che i permessi siano `600`;
-- Usa sempre l’opzione `-i <key>` per specificare la chiave privata con `ssh`.  
-- Se lo step di copia non funziona (permessi o path errato), controlla che il file esista nella home remota e che tu abbia permessi di lettura su di esso.
-
----
-
-## 🔹 Livello 14 → 15
-
-### 🎯 Obiettivo
-Inviare la password corrente al servizio in ascolto su **localhost:30000** per ricevere, in risposta, la password per il livello 15.
-
-### 💻 Comandi principali
 ```bash
-# leggere la password corrente e inviarla a localhost:30000 via TCP
-cat /etc/bandit_pass/bandit14 | nc localhost 30000
-
-# Correct!
-# → password per il livello 15
-# [REDACTED]
+ssh -i sshkey.private \
+    -p 2220 \
+    bandit14@bandit.labs.overthewire.org
 ```
 
-### 🧠 Spiegazione
-- Il server locale sulla porta 30000 si aspetta in ingresso **una singola riga** contenente la password corrente; quando la riceve e la verifica, risponde con la password successiva;
-- `nc` (netcat) apre una connessione TCP semplice e inoltra la stringa.
+### Takeaway
 
-### 🪄 Takeaway
-- `nc` è perfetto per servizi TCP "plain" che leggono una riga e rispondono;
-- Assicurati di inviare **esattamente** la stringa corretta (nessun carattere extra/whitespace).
+Private SSH keys are sensitive credentials and should have restrictive filesystem permissions.
+
+SSH will normally reject private keys that are accessible to other users.
 
 ---
 
-## 🔹 Livello 15 → 16
+## Level 14 → 15
 
-### 🎯 Obiettivo
-Simile al livello precedente, ma la comunicazione con il servizio avviene su **TLS**: inviare la password corrente a **localhost:30001** usando SSL/TLS e ricevere la password successiva.
+### Objective
 
-### 💻 Comandi principali
-Metodo interattivo (apri connessione TLS e incolla la password):
+Send the current password to a local TCP service listening on port 30000.
+
+### Method
+
+```bash
+cat /etc/bandit_pass/bandit14 | nc localhost 30000
+```
+
+### Takeaway
+
+Netcat provides a simple way to interact with TCP services and is useful for understanding basic client-server communication.
+
+---
+
+## Level 15 → 16
+
+### Objective
+
+Communicate with a TLS-protected local service on port 30001.
+
+### Method
+
+Interactive:
+
 ```bash
 openssl s_client -connect localhost:30001
-# incolla la password, premi Invio
-# attendi la risposta (poi CTRL+C/CTRL+D per chiudere se necessario)
-# → password per il livello 16
-# [REDACTED]
 ```
 
-Metodo non interattivo (pipe):
+Non-interactive:
+
 ```bash
-printf "%s\n" "$(cat /etc/bandit_pass/bandit15)" | openssl s_client -connect localhost:30001 -quiet
-# → password per il livello 16
-# [REDACTED]
+printf "%s\n" "$(cat /etc/bandit_pass/bandit15)" |
+    openssl s_client -connect localhost:30001 -quiet
 ```
 
-> [!NOTE]
-> Se incontri messaggi come `DONE`, `RENEGOTIATING` o `KEYUPDATE`, prova ad aggiungere `-ign_eof` o `quiet` (sezione "CONNECTED COMMANDS" del manpage `openssl s_client`).
+### Takeaway
 
-### 🧠 Spiegazione
-- `openssl s_client` stabilisce una connessione TLS verso il servizio;
-- Dopo l’handshake, invii la password sulla connessione sicura; il server risponde con la password successiva.
-- L’opzione `-quiet` riduce l’output informativo, mentre `-ign_eof` aiuta a gestire connessioni che chiudono in modo anomalo.
+`openssl s_client` is useful for testing TLS services and interacting directly with encrypted application protocols.
 
-### 🪄 Takeaway
-- Per servizi TLS locali usa `openssl s_client -connect host:port` per testare e inviare payload sicuri;  
-- Quando automatizzi l’invio, preferisci `printf ... | openssl s_client -quiet` per evitare input interattivi e ottenere output pulito;
-- Se la sessione TLS rimane "bloccata" o produce messaggi di stato, sperimenta con `-ign_eof` o `-quiet`.
+The challenge demonstrates the distinction between plain TCP communication and TLS-protected communication.
 
 ---
 
-## 🔹 Livello 16 → 17
+## Level 16 → 17
 
-### 🎯 Obiettivo
-Individuare nell’intervallo **31000–32000** le porte su **localhost** che hanno un servizio attivo, distinguere quali parlano **TLS** e inviare la password corrente al servizio corretto. Solo **un** servizio restituisce le credenziali/chiave per il livello successivo.
+### Objective
 
-### 💻 Comandi principali
+Enumerate local services listening on ports 31000–32000 and identify the TLS-enabled service that accepts the current password.
+
+### Method
+
+Scan the port range:
+
 ```bash
-# 1) Scansione servizi nell'intervallo richiesto, con rilevazione versione/protocollo
 nmap -sV localhost -p 31000-32000
-
-# (esempio esiti rilevanti)
-# 31046/tcp open  echo
-# 31518/tcp open  ssl/echo
-# 31691/tcp open  echo
-# 31790/tcp open  ssl/unknown   <-- candidato
-# 31960/tcp open  echo
-
-# 2) Test del servizio TLS candidato
-openssl s_client -connect localhost:31790 -ign_eof
-
-# 3) Inviare la password corrente sulla connessione TLS (una riga e Invio)
-# (puoi fare piping in modo non interattivo)
-printf "%s\n" "$(cat /etc/bandit_pass/bandit16)" \
-  | openssl s_client -connect localhost:31790 -quiet
-
-# 4) Riceverai in risposta un blocco PEM (chiave privata RSA) da salvare
-#    (qui oscurato per policy)
-# -----BEGIN RSA PRIVATE KEY-----
-# [REDACTED PRIVATE KEY]
-# -----END RSA PRIVATE KEY-----
-
-# 5) Salva la chiave in un file e proteggila
-cat > /tmp/bandit17.key <<'EOF'
------BEGIN RSA PRIVATE KEY-----
-[REDACTED PRIVATE KEY]
------END RSA PRIVATE KEY-----
-EOF
-chmod 600 /tmp/bandit17.key
 ```
 
-### 🧠 Spiegazione
-- **Ricognizione**: `nmap -sV` identifica quali porte nell’intervallo sono aperte e tenta di capire se parlano **SSL/TLS**; 
-- **Selezione**: tra i risultati, i servizi `ssl/*` sono i candidate; il comportamento del livello suggerisce che **uno solo** risponde con le credenziali corrette se riceve la password valida;
-- **Dialogo TLS**: `openssl s_client` stabilisce l’handshake; eventuali warning (certificato self-signed) sono **attesi** nel wargame. Dopo l’handshake, inviando la password **esatta** su una singola riga, il server restituisce una **RSA private key** (PEM);
-- **Uso successivo**: quella chiave è l’artefatto da usare per autenticarti al livello 17.
+Inspect the relevant TLS service:
 
-### 🪄 Takeaway
-- Usa `nmap -sV` per combinare **port scanning** e **fingerprinting** dei servizi;
-- Con servizi TLS, `openssl s_client -connect host:port` è lo strumento più veloce per test e scambio dati;
-- I server “trappola” in questo livello fanno eco: solo **uno** consegna la credenziale vera.
+```bash
+openssl s_client -connect localhost:<PORT>
+```
+
+Send the current password:
+
+```bash
+printf "%s\n" "$(cat /etc/bandit_pass/bandit16)" |
+    openssl s_client -connect localhost:<PORT> -quiet
+```
+
+The correct service returns an RSA private key for the next level.
+
+### Takeaway
+
+This level combines service enumeration, protocol identification and TLS interaction.
+
+The general workflow is:
+
+```text
+Scan
+→ identify services
+→ identify protocol
+→ test relevant service
+```
 
 ---
 
-## 🔹 Livello 17 → 18
+## Level 17 → 18
 
-### 🎯 Obiettivo
-Identificare quale riga è cambiata tra i file `passwords.old` e `passwords.new` nella home. La riga modificata (cioè quella nuova) contiene la password per il livello 18.
+### Objective
 
-### 💻 Comandi principali
+Identify the single line changed between `passwords.old` and `passwords.new`.
+
+### Method
+
 ```bash
-# confrontare i due file e individuare la riga modificata
-42c42
 diff passwords.old passwords.new
-# < pGozC8kOHLkBMOaL0ICPvLV1IjQ5F1VA
-# → password per il livello 18
-# > [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Il comando `diff` confronta due file linea per linea:
-- `<` indica una riga presente solo nel primo file (`passwords.old`);
-- `>` indica una riga nuova nel secondo file (`passwords.new`).  
-La differenza in questo caso è **una sola riga**, e il contenuto marcato con `>` è la password per il livello 18.
+The changed line in `passwords.new` contains the password for the next level.
 
-### 🪄 Takeaway
-- `diff` è utile per individuare variazioni puntuali in configurazioni o password file;
-- Se vuoi un’uscita più leggibile, puoi usare `diff -u` (unified format).
+### Takeaway
+
+`diff` is useful for identifying configuration changes, modified data and unexpected file modifications.
 
 ---
 
-## 🔹 Livello 18 → 19
+## Level 18 → 19
 
-### 🎯 Obiettivo
-Ottenere la password per il livello 19 leggendo il file `readme` nella home, **senza** essere disconnesso automaticamente. Il file `.bashrc` dell’utente `bandit18` è stato modificato per eseguire un logout immediato appena si apre una sessione SSH interattiva.
+### Objective
 
-### 💻 Comandi principali
+Read the next password without opening an interactive SSH session.
+
+The `bandit18` environment terminates the interactive shell during login.
+
+### Method
+
+Execute the required command directly through SSH:
+
 ```bash
-# accedere con SSH in modalità "non interattiva" e leggere direttamente il file
-ssh -i sshkey17.private -p 2220 bandit18@bandit.labs.overthewire.org cat readme
-
-# → password per il livello 19
-# [REDACTED]
+ssh -p 2220 \
+    bandit18@bandit.labs.overthewire.org \
+    cat readme
 ```
 
-### 🧠 Spiegazione
-L’esecuzione diretta di un comando remoto (`cat readme`) evita di aprire una shell interattiva.
+### Takeaway
 
-### 🪄 Takeaway
-- I file `.bashrc` e `.bash_profile` vengono caricati solo in sessioni **login interattive**;
-- Per aggirare logout o comandi indesiderati, usa SSH in modalità **non interattiva** specificando direttamente il comando; 
-- Questa tecnica è utile anche per automazioni (`ssh host "cmd"`) e raccolta dati remoti.
+SSH does not require an interactive shell. Remote commands can be executed directly.
+
+This is useful for automation and for environments where interactive shell initialization is restricted or modified.
 
 ---
 
-## 🔹 Livello 19 → 20
+## Level 19 → 20
 
-### 🎯 Obiettivo
-Utilizzare il binario **setuid** presente nella home (`bandit20-do`) per eseguire comandi come l’utente `bandit20` e ottenere la password per il livello 20 dal file `/etc/bandit_pass/bandit20`.
+### Objective
 
-### 💻 Comandi principali
+Use a SUID binary to execute a command with the privileges of its owner.
+
+### Method
+
+Inspect the provided executable:
+
 ```bash
-# verificare cosa fa il binario
 ./bandit20-do
+```
 
-# output:
-# Run a command as another user.
-#   Example: ./bandit20-do whoami
+Confirm its execution context:
 
-# eseguire un comando come bandit20
+```bash
 ./bandit20-do whoami
-# bandit20
+```
 
-# leggere la password per bandit20
+Read the protected password file:
+
+```bash
 ./bandit20-do cat /etc/bandit_pass/bandit20
-# → password per il livello 20
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-`bandit20-do` è un binario **setuid**, ovvero eseguito con i privilegi dell’utente proprietario (`bandit20`).   Quando viene lanciato, qualunque comando passato come argomento viene eseguito con tali privilegi. In questo caso si usa per leggere il file di password a cui `bandit19` normalmente non avrebbe accesso.
+### Takeaway
 
-### 🪄 Takeaway
-- I binari **setuid** sono strumenti per eseguire codice con privilegi superiori;
-- È buona prassi **analizzare l’uso del comando** (`./nomecomando` senza argomenti) prima di tentare l’esecuzione;
-- Controlla sempre i permessi con `ls -l`: un bit “s” nella colonna dei permessi (`-rwsr-x---`) indica setuid/setgid attivo.
+SUID binaries execute with the effective privileges of their owner.
+
+Any SUID executable that exposes unsafe functionality can become a privilege-escalation vector.
 
 ---
 
-## 🔹 Livello 20 → 21
+## Level 20 → 21
 
-### 🎯 Obiettivo
-Usare un altro binario **setuid**, chiamato `suconnect`, che:
-1. Si connette a una porta locale specificata come argomento;  
-2. Legge una riga di testo dalla connessione;  
-3. La confronta con la password per il livello 20;  
-4. Se la password è corretta, invia la password per il livello 21.
+### Objective
 
-### 💻 Comandi principali
+Exploit the `suconnect` binary by providing the current password through a local TCP service.
+
+### Method
+
+Start a local listener that returns the current password:
+
 ```bash
-# aprire un listener locale che invii la password corrente quando qualcuno si connette
-echo [REDACTED] | nc -l -p 2000 &
+echo "<current-password>" | nc -l -p 2000 &
+```
 
-# eseguire il binario setuid passando la porta come argomento
+Run the SUID-enabled client:
+
+```bash
 ./suconnect 2000
-
-# output:
-# Read: [REDACTED]
-# Password matches, sending next password
-# → password per il livello 21
-# [REDACTED]
-
 ```
 
-### 🧠 Spiegazione
-- Il binario `suconnect` tenta di aprire una connessione TCP verso una porta locale;
-- Con `nc -l -p 2000` crei un **server locale** che, non appena riceve una connessione, invia la password corrente;
-- Il binario riceve la password, la valida e risponde con la password successiva, che viene stampata sul terminale.
+The service validates the supplied password and returns the next credential.
 
-> [!IMPORTANT]
-> È importante aprire prima il listener (`nc -l -p 2000 &`) e solo dopo eseguire `./suconnect`, altrimenti il programma non troverà nessun servizio in ascolto.
+### Takeaway
 
-### 🪄 Takeaway
-- Questa sfida introduce il concetto di **network loopback** e interazione tra processi locali;  
-- Se vuoi osservare il traffico, puoi usare `ss -ltn` o `netstat -anp` mentre la connessione avviene.
+This level demonstrates how local network services can interact with privileged processes.
+
+The security boundary is not limited to filesystem access: network input can also become privileged input when a vulnerable process trusts it.
 
 ---
 
-## 🔹 Livello 21 → 22
+## Level 21 → 22
 
-### 🎯 Obiettivo
-Identificare quale job **cron** è configurato in `/etc/cron.d/` e capire quale comando viene eseguito periodicamente. Il job copiando la password per il livello 22 in un file temporaneo rende quella password leggibile: bisogna individuare e leggere quel file.
+### Objective
 
-### 💻 Comandi principali
+Analyse a scheduled cron job and identify the temporary file containing the next password.
+
+### Method
+
+Inspect the cron configuration:
+
 ```bash
-# leggere il file di configurazione del cron per questo job
 cat /etc/cron.d/cronjob_bandit22
+```
 
-# aprire lo script eseguito dal job
+Inspect the executed script:
+
+```bash
 cat /usr/bin/cronjob_bandit22.sh
-
-# ispezionare il file temporaneo creato dallo script (il nome può cambiare)
-cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
-# → password per il livello 22
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-`/etc/cron.d/cronjob_bandit22` contiene la schedule che esegue `/usr/bin/cronjob_bandit22.sh` ogni minuto (e al reboot). 
+The script copies the protected password into a temporary file with readable permissions.
 
-Lo script esegue due operazioni principali:
-1. `chmod 644 /tmp/<nome>`: imposta permessi leggibili per tutti sul file temporaneo;  
-2. `cat /etc/bandit_pass/bandit22 > /tmp/<nome>`: copia la password protetta in un file temporaneo con permessi che consentono la lettura da altri utenti.
+Read the generated file from `/tmp`.
 
-Poiché il file temporaneo viene creato con permessi globalmente leggibili, un utente con accesso alla macchina può semplicemente leggere il file in `/tmp` per ottenere la password.
+### Takeaway
 
-### 🪄 Takeaway
-- Controlla sempre `/etc/cron.d/` per job di sistema che eseguono script con privilegi e potrebbero esporre informazioni;
-- Gli script cron che scrivono in `/tmp` possono accidentalmente rendere dati sensibili leggibili se non impostano permessi restrittivi.
+Privileged cron jobs must carefully control both their output locations and the permissions of generated files.
+
+Temporary directories are not inherently safe storage for sensitive data.
 
 ---
 
-## 🔹 Livello 22 → 23
+## Level 22 → 23
 
-### 🎯 Obiettivo
-Analizzare lo script cron `/usr/bin/cronjob_bandit23.sh` per capire come calcola il percorso del file temporaneo in cui la password per il livello 23 viene scritta, e quindi leggere quel file per ottenere la password.
+### Objective
 
-### 💻 Comandi principali
+Determine the predictable filename generated by the cron job and retrieve the resulting password.
+
+### Method
+
+Inspect the script:
+
 ```bash
-# leggere la definizione del job cron
-cat /etc/cron.d/cronjob_bandit23
-
-# aprire lo script eseguito dal cron
 cat /usr/bin/cronjob_bandit23.sh
-
-# lo script usa whoami e md5sum per costruire il nome:
-# myname=$(whoami)
-# mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
-
-# calcolare localmente lo stesso nome (sostituire con l'utente target)
-echo "I am user bandit23" | md5sum | cut -d ' ' -f 1
-
-# leggere il file temporaneo corrispondente
-cat /tmp/8ca319486bfbbc3663ea0fbe81326349
-# → password per il livello 23
-# [REDACTED]
 ```
 
-### 🧠 Spiegazione
-Lo script eseguito dal cron:
-1. calcola il nome del file temporaneo come `md5("I am user <username>")`;  
-2. copia `/etc/bandit_pass/<username>` in `/tmp/<md5sum>`.
+The filename is derived deterministically from:
 
-Per recuperare la password basta replicare la trasformazione (calcolare l’MD5 della stringa `I am user <nome_utente>`) e leggere `/tmp/<risultato>`. Il file risultante conterrà la password per il livello 23.
+```text
+I am user <username>
+```
 
-### 🪄 Takeaway
-- Leggere gli script cron ti permette di prevedere percorsi e nomi generati dinamicamente; 
-- `md5sum` + `echo` + `cut` è una tecnica comune per generare nomi deterministici e riproducibili.
+using MD5:
+
+```bash
+echo "I am user bandit23" | md5sum
+```
+
+Use the resulting hash to locate the generated file in `/tmp`.
+
+### Takeaway
+
+A deterministic naming scheme is not a security mechanism.
+
+If the input, transformation and output format are known, the resulting identifier can be reproduced.
 
 ---
 
-## 🔹 Livello 23 → 24
+## Level 23 → 24
 
-### 🎯 Obiettivo
-Creare uno script shell che verrà eseguito automaticamente dal job `cron` del livello. Lo script deve essere posizionato in `/var/spool/bandit24/foo` e verrà eseguito dal cron con i permessi di `bandit24`.
+### Objective
 
-### 💻 Comandi principali
+Exploit a cron job that executes user-controlled files from a writable directory.
+
+### Method
+
+Inspect the cron configuration:
+
 ```bash
-# leggere il crontab e lo script eseguito
 cat /etc/cron.d/cronjob_bandit24
+```
+
+Then inspect the script:
+
+```bash
 cat /usr/bin/cronjob_bandit24.sh
+```
 
-# contenuto rilevante dello script:
-# myname=$(whoami)
-# cd /var/spool/$myname/foo
-# for i in * .*; do
-#   owner="$(stat --format "%U" ./$i)"
-#   if [ "${owner}" = "bandit23" ]; then
-#       timeout -s 9 60 ./$i
-#   fi
-#   rm -f ./$i
-# done
+The script executes files placed in the relevant spool directory with elevated privileges.
 
-# creare una working dir temporanea
-mktemp -d
-cd /tmp/tmp.XXXXXX
+A controlled script can therefore read the protected password and write it to a location accessible by the current user.
 
-# preparare lo script che verrà eseguito dal cron
-cat > bandit24.sh <<'EOF'
+### Example
+
+```bash
 #!/bin/bash
-cat /etc/bandit_pass/bandit24 > /tmp/tmp.XXXXXX/passwd_bandit24
-EOF
-
-# rendi eseguibile lo script
-chmod +x bandit24.sh
-
-# copiare lo script nella directory controllata dal cron (richiede permessi scrivibili dall'utente)
-cp bandit24.sh /var/spool/bandit24/foo/
-
-# dopo che il cron esegue lo script, leggere il file temporaneo
-cat /tmp/tmp.XXXXXX/passwd_bandit24
-# → password per il livello 24
-# [REDACTED]
+cat /etc/bandit_pass/bandit24 > /tmp/bandit24_password
 ```
 
-### 🧠 Spiegazione
-- Il job cron legge ed esegue ogni file presente in `/var/spool/<utente>/foo`. Lo script controlla l'owner del file e, se corrisponde all'utente previsto (qui `bandit23`), lo esegue con `timeout` per evitare processi bloccati;
-- Poiché lo script è cancellato dopo l'esecuzione (`rm -f ./$i`), è fondamentale mantenere una copia locale se vuoi ri-eseguirlo o analizzarlo;  
-- L'idea è sfruttare il fatto che lo script verrà eseguito con i permessi di `bandit24` e quindi potrà leggere `/etc/bandit_pass/bandit24` e scriverne il contenuto in un file temporaneo con permessi leggibili.
+Make the script executable and place it in the directory monitored by the cron job.
 
-### 🪄 Takeaway
-- Cron jobs che eseguono script trovati in directory pubbliche sono vettori comuni per escalation o per ottenere dati sensibili: attenzione a cosa si può scrivere in quelle directory;
-- `timeout` è usato per limitare l'esecuzione — utile quando non si conosce il comportamento dello script eseguito; 
-- Non lasciare script o file con permessi insicuri in directory pubbliche; in questo esercizio lo sfruttiamo appositamente per ottenere la password.
+### Takeaway
+
+Privileged scheduled tasks must never execute files from locations writable by unprivileged users.
+
+This is a common Linux privilege-escalation pattern.
 
 ---
 
-## 🔹 Livello 24 → 25
+## Level 24 → 25
 
-### 🎯 Obiettivo
-Interagire con un **daemon** in ascolto su `localhost:30002` che, se riceve la password per il livello corrente e un pincode a 4 cifre corretti (in una singola riga separati da uno spazio), restituisce la password per il livello 25. L'unico modo per scoprire il pincode è provare tutte le 10.000 combinazioni (0000–9999).
+### Objective
 
-### 💻 Comandi principali
+Recover a four-digit PIN accepted by a local service together with the current password.
+
+### Method
+
+The possible PINs range from:
+
+```text
+0000
+```
+
+to:
+
+```text
+9999
+```
+
+Generate candidate inputs programmatically and stream them to the service.
+
+Example:
+
 ```bash
-# prova manuale (interattiva)
-nc localhost 30002
-# poi digitare: "<REDACTED_PASSWORD_BANDIT24> 1234" e premere Invio
-
-# esempio di brute-force scrivendo tutte le combinazioni in un file e poi pipe-ando a nc
-mktemp -d
-cd /tmp/tmp.XXXXXX
-
-# generare le righe "password 0000" .. "password 9999"
 for i in {0000..9999}; do
-  printf "%s %04d\n" "REDACTED_PASSWORD_BANDIT24" "$i" >> 4pincodes.txt
-done
-
-# inviare tutte le righe al daemon (una singola connessione)
-cat 4pincodes.txt | nc localhost 30002 > result.txt
-
-# cercare nella risposta la riga "Correct!" e la password successiva
-grep -i "Correct" -n result.txt && tail -n 1 result.txt
-# → password per il livello 25
-[REDACTED_PASSWORD_BANDIT25]
+    printf "%s %04d\n" "<current-password>" "$i"
+done | nc localhost 30002
 ```
 
-### 🧠 Spiegazione
-- Il servizio accetta una singola riga contenente la password corrente e il pincode. Inviare 10.000 richieste aprendo/chiudendo la connessione per ognuna sarebbe lento; invece si **prepara** la lista di tutte le possibili righe e usiamo il **piping** in una singola connessione `nc`, così il server processa tutte le linee in sequenza e risponde quando trova la combinazione corretta;
-- `result.txt` contiene tutta la conversazione; cercando la parola `Correct!` o leggendo l'ultima parte del file si ottiene la password per il livello successivo.
+Search the response for the successful attempt.
 
-### 🪄 Takeaway
-- Quando devi bruteforcare server che leggono input riga per riga, è efficiente inviare tutte le combinazioni su **una sola connessione** tramite pipe, evitando le 10.000 handshake TCP;
-- Evita di generare file giganteschi su dischi lenti quando possibile — lo streaming in pipe è preferibile.
+### Takeaway
+
+A four-digit secret provides only 10,000 possible combinations.
+
+Without sufficient rate limiting or account lockout, such a small search space can be exhaustively tested.
 
 ---
 
-## ## 🔹 Livello 25 → 26
+## Level 25 → 26
 
-### ### 🎯 Obiettivo
-Accedere come `bandit26`. L’utente `bandit26` ha come shell `/usr/bin/showtext` (non una bash interattiva). Scopri che fa questo programma e come "sfuggire" alla shell restrittiva per leggere la password per il livello 26.
+### Objective
 
-### ### 💻 Comandi principali (estratto)
+Escape the restricted environment used by `bandit26`.
+
+### Method
+
+Inspect the account configuration:
+
 ```bash
-# verificare la shell impostata per bandit26
 cat /etc/passwd | grep bandit26
-# bandit26:x:11026:11026:bandit level 26:/home/bandit26:/usr/bin/showtext
+```
 
-# leggere il binario/script showtext
+The configured shell points to:
+
+```text
+/usr/bin/showtext
+```
+
+Inspect the executable:
+
+```bash
 cat /usr/bin/showtext
-# esempio output:
-# #!/bin/sh
-# export TERM=linux
-# exec more ~/text.txt
-# exit 0
-
-# copiare la chiave SSH fornita dall'utente precedente
-scp -P 2220 bandit25@bandit.labs.overthewire.org:~/bandit26.sshkey .
-
-# connettersi usando la chiave privata
-ssh -i bandit26.sshkey -p 2220 bandit26@bandit.labs.overthewire.org
-
-# una volta dentro, usare i comandi per interagire con more/vim:
-# - ridurre la dimensione del terminale (per abilitare modalità "more -> v -> vim" su alcuni server)
-# - quando compare "--More--", premere 'v' per aprire vim (modalità visual editor)
-# dentro vim:
-# :set shell=/bin/bash
-# :shell
-# ora si è in una shell bash interattiva
-
-# ALTERNATIVA (dentro vim): :e /etc/bandit_pass/bandit26
-# oppure, una volta in shell:
-cat /etc/bandit_pass/bandit26
-# → [REDACTED_PASSWORD_BANDIT26]
 ```
 
-### ### 🧠 Spiegazione
-- `/usr/bin/showtext` invoca `more ~/text.txt`, fornendo un'interfaccia di sola lettura;
-- `more` permette di avviare un editor (premendo `v`) aprendo il file con `vi`/`vim`. In molte installazioni `more` lancia l'editor impostato dalla variabile d'ambiente `$EDITOR` o usa `vi`;
-- In `vim` si può cambiare temporaneamente la shell con `:set shell=/bin/bash` e poi eseguire `:shell` per ottenere una vera shell interattiva (breakout): da lì puoi leggere `/etc/bandit_pass/bandit26`;
+It invokes the `more` pager.
 
-> [!NOTE]
-> Su alcuni client Windows (PowerShell) il comportamento può bloccarsi — usare cmd.exe o un terminale POSIX-like per evitare problemi.
+When `more` is available, it can be used to launch an editor. The editor then provides another execution context from which a shell can be invoked.
 
-### ### 🪄 Takeaway
-- I visual pager/editor possono essere vettori di “escape” da shell limitate: impara le scorciatoie (`v`, `:shell`, `:e`) per trasformare un viewer in una shell.
+The challenge can therefore be approached through:
+
+```text
+restricted shell
+→ showtext
+→ more
+→ vim
+→ shell
+```
+
+Once a normal shell is obtained, the protected file can be accessed.
+
+### Takeaway
+
+Restricted shells are only effective when every program available inside the environment is appropriately constrained.
+
+A seemingly harmless pager or editor can become an execution primitive if it allows arbitrary commands.
 
 ---
 
-## ## 🔹 Livello 26 → 27
+## Level 26 → 27
 
-### ### 🎯 Obiettivo
-Dopo aver ottenuto una shell valida come `bandit26`, recuperare la password per il livello 27 eseguendo lo script/setuid (fornito nella home) che esegue comandi come l’utente appropriato.
+### Objective
 
-### ### 💻 Comandi principali (estratto)
+Use the privileged executable available after escaping the restricted shell to access the next password.
+
+### Method
+
+Enumerate the home directory:
+
 ```bash
-# esplorare la home
 ls -la
-
-# identificare i file utili
-# ad esempio: bandit27-do  text.txt
-ls
-
-# eseguire il binario fornito per leggere la password
-./bandit27-do cat /etc/bandit_pass/bandit27
-# → password per il livello 26
-# [REDACTED]
 ```
 
-### ### 🧠 Spiegazione
-- Il file `bandit27-do` è un eseguibile con permessi che consentono di eseguire comandi con privilegi o contesto diverso;  
-- Chiamandolo con argomento `cat /etc/bandit_pass/bandit27`, il programma esegue `cat` come utente badnit27 e stampa la password per il livello 27;
+Identify the privileged executable and inspect its behaviour.
 
-### ### 🪄 Takeaway
-- Controlla sempre i permessi (`ls -l`) e prova a eseguire i binari con `--help` o senza argomenti per scoprire il loro comportamento.
+The intended mechanism is equivalent to the SUID technique used earlier: the executable performs an operation using elevated privileges.
+
+### Takeaway
+
+Privilege escalation techniques often recur in different forms. Recognising the underlying security property is more useful than memorising individual binaries.
 
 ---
 
-## 🔹 Livello 27 → 28
+## Level 27 → 28
 
-### ### 🎯 Obiettivo
-Clonare un repository Git remoto accessibile via SSH (utente `bandit27-git` su porta `2220`) e cercare al suo interno la password per il livello 28 leggendo i file del repo.
+### Objective
 
-### ### 💻 Comandi principali
+Clone a Git repository accessible through SSH and inspect its contents.
+
+### Method
+
+Clone the repository:
+
 ```bash
-# clonare il repository via SSH (porta 2220)
-git clone ssh://bandit27-git@bandit.labs.overthewire.org:2220/home/bandit27-git/repo
-
-# entrare nella directory clonata e ispezionare i file
-cd repo
-ls -la
-cat README
-# → password per il livello 28
-# [REDACTED_PASSWORD_BANDIT28]
+git clone \
+    ssh://bandit27-git@bandit.labs.overthewire.org:2220/home/bandit27-git/repo
 ```
 
-### ### 🧠 Spiegazione
-Il repository remoto contiene la password in un file di testo (README o simile). Poiché l'autenticazione SSH avviene con le credenziali `bandit27` (stessa password dell'utente `bandit27`), il clone è permesso e basta leggere i file del repo per trovare la stringa contenente la password per il livello 28.
+Inspect the repository:
 
-### ### 🪄 Takeaway
-- Quando un repo remoto è accessibile via SSH, la prima azione è clonarlo e ispezionare i file comuni (`README`, `CHANGELOG`, ecc.);
-- I repository possono contenere *leak* accidentali (password in chiaro, commit con dati sensibili);
-- In un writeup su GitHub mantieni le password oscurate e spiega come riprodurre il passo se l’utente ha accesso legittimo.
-
----
-
-## 🔹 Livello 28 → 29
-
-### ### 🎯 Obiettivo
-Clonare il repository SSH (`bandit28-git`) e analizzare la storia Git per trovare dove è stata esposta (o rimossa) la password per il livello 29.
-
-### ### 💻 Comandi principali
 ```bash
-# clonare il repository del livello 28
-git clone ssh://bandit28-git@bandit.labs.overthewire.org:2220/home/bandit28-git/repo
 cd repo
-
-# ispezionare il contenuto corrente
 ls -la
 cat README.md
+```
 
-# esplorare la storia dei commit per cercare informazioni rimosse o modificate
+### Takeaway
+
+Source-code repositories are part of an application's attack surface.
+
+Always inspect repositories for:
+
+- credentials
+- configuration
+- development artefacts
+- historical information
+- accidentally committed secrets
+
+---
+
+## Level 28 → 29
+
+### Objective
+
+Recover a password that was removed from the current repository state but remains in Git history.
+
+### Method
+
+Clone the repository and inspect its history:
+
+```bash
+git clone \
+    ssh://bandit28-git@bandit.labs.overthewire.org:2220/home/bandit28-git/repo
+
+cd repo
 git log
-
-# visualizzare il commit sospetto per vedere la diff (sostituire <commit> con l'hash reale)
-git show b5ed4b5a3499533c2611217c8780e8ead48609f6
-
-# → password per il livello 29
-# [REDACTED_PASSWORD_BANDIT29]
 ```
 
-### ### 🧠 Spiegazione
-I maintainer possono aver rimosso la password dal file `README.md` ma la password rimane nella storia dei commit. Con `git log` e `git show <commit>` è possibile visualizzare la diff che mostra cosa è stato cambiato e recuperare la stringa rimossa. 
+Inspect the relevant commit:
 
-### ### 🪄 Takeaway
-- Git conserva la cronologia completa: rimozioni nel working tree non cancellano necessariamente i dati dalla storia. `git show` su commit specifici è un modo potente per recuperare informazioni;
-- Controlla sempre: `git log`, `git show`, `git branch -a`, `git tag` e ispeziona commit diff per informazioni nascoste.
+```bash
+git show <commit>
+```
+
+The removed value is visible in the commit diff.
+
+### Takeaway
+
+Deleting a secret from the current working tree does not remove it from Git history.
+
+Credential exposure therefore requires history management and, when necessary, rewriting or invalidating compromised credentials.
 
 ---
 
-## ## 🔹 Livello 29 → 30
+## Level 29 → 30
 
-### ### 🎯 Obiettivo  
-Clonare un repository Git (`bandit29-git`) e scoprire dove è nascosta la password per il livello 30.
+### Objective
 
-### ### 💻 Comandi principali
+Find sensitive information stored in a non-default Git branch.
+
+### Method
+
+Inspect all branches:
+
 ```bash
-# clonare il repository
-git clone ssh://bandit29-git@bandit.labs.overthewire.org:2220/home/bandit29-git/repo
-cd repo
-
-# controllare branch remoti
 git branch -a
+```
 
-# cambiare branch
+Switch to the relevant branch:
+
+```bash
 git checkout dev
-
-# leggere i file del branch alternativo
-ls
-cat README.md
-# → password per il livello 30
-# [REDACTED_PASSWORD_BANDIT30]
 ```
 
-### ### 🧠 Spiegazione
-- La password non è presente nel branch `master` ma nella branch `dev`;
-- `git branch -a` rivela l’esistenza di branch remoti come `origin/dev` o `origin/sploits-dev`;
-- Passando a `dev` (`git checkout dev`) compare un file `code/` e un `README.md` aggiornato contenente la password per il livello 30.
+Inspect the branch contents:
 
-### ### 🪄 Takeaway
-- Le password possono trovarsi in branch non visibili nel default branch;
-- `git branch -a` e `git checkout <branch>` sono strumenti essenziali per esplorare repository con più versioni o branch di sviluppo;
-- L’abitudine di lasciare credenziali su branch di test o dev è un errore comune anche in progetti reali.
+```bash
+cat README.md
+```
+
+### Takeaway
+
+Security reviews of repositories should include branches, not just the default branch.
+
+Development and testing branches are common sources of accidentally exposed credentials and unfinished security controls.
 
 ---
 
-## ## 🔹 Livello 30 → 31
+## Level 30 → 31
 
-### ### 🎯 Obiettivo  
-Clonare il repo Git (`bandit30-git`) e scoprire dove è nascosta la password per il livello 31.
+### Objective
 
-### ### 💻 Comandi principali
+Find information stored in Git tag metadata.
+
+### Method
+
+List available tags:
+
 ```bash
-# clonare il repo
-git clone ssh://bandit30-git@bandit.labs.overthewire.org:2220/home/bandit30-git/repo
-cd repo
-
-# ispezionare il contenuto
-cat README.md
-# → "just an empty file... muahaha"
-
-# controllare tag esistenti
 git tag
-
-# mostrare il contenuto del tag
-git show secret
-# → password per il livello 32
-# [REDACTED_PASSWORD_BANDIT31]
 ```
 
-### ### 🧠 Spiegazione
-Nel repository non ci sono file utili, ma è presente un tag (`secret`) che contiene un messaggio (la password). I tag in Git possono contenere dati testuali, e sono spesso usati per marcare versioni, ma qui fungono da *contenitore nascosto*.
+Inspect the relevant tag:
 
-### ### 🪄 Takeaway
-- Non limitarti a guardare i file: usa `git tag`, `git show`, `git log`, `git reflog`;
-- Tag e branch sono ottimi nascondigli per dati sensibili;
-- Nella sicurezza reale, analizzare metadati Git è parte del code forensics.
+```bash
+git show secret
+```
+
+### Takeaway
+
+Repository metadata can contain sensitive information even when the working tree appears clean.
+
+Git security reviews should consider commits, branches, tags and other repository objects.
 
 ---
 
-## ## 🔹 Livello 31 → 32
+## Level 31 → 32
 
-### ### 🎯 Obiettivo  
-Creare e pushare un file (`key.txt`) al repository remoto seguendo le istruzioni del `README.md`.
+### Objective
 
-### ### 💻 Comandi principali
+Submit a specific file to a Git repository while bypassing the repository's `.gitignore` rule.
+
+### Method
+
+Clone the repository:
+
 ```bash
-# clonare il repository
-git clone ssh://bandit31-git@bandit.labs.overthewire.org:2220/home/bandit31-git/repo
+git clone \
+    ssh://bandit31-git@bandit.labs.overthewire.org:2220/home/bandit31-git/repo
 cd repo
+```
 
-# leggere le istruzioni
-cat README.md
+Create the required file:
 
-# creare il file richiesto
+```bash
 echo "May I come in?" > key.txt
+```
 
-# bypassare .gitignore
+Inspect `.gitignore`:
+
+```bash
 cat .gitignore
-# → *.txt
-git add -f key.txt
+```
 
-# commit e push
-git commit -m "Ciao ;) from Italia!"
+Force-add the ignored file:
+
+```bash
+git add -f key.txt
+```
+
+Commit and push:
+
+```bash
+git commit -m "Add required key"
 git push -u origin master
 ```
 
-Durante il push, il server remoto esegue un **hook di validazione**:
-```bash
-remote: ### Attempting to validate files... ####
-remote: Well done! Here is the password for the next level:
-# → password per il livello 33
-remote: [REDACTED_PASSWORD_33]
-```
+The remote validation hook processes the submission and returns the next credential.
 
-### ### 🧠 Spiegazione
-- Il `.gitignore` blocca i `.txt`, ma l’opzione `-f` (`--force`) in `git add` permette di forzare l’inclusione.
-- Il server esegue uno script lato server che verifica la presenza del file `key.txt` con contenuto corretto, restituendo la password nel messaggio di risposta SSH.
+### Takeaway
 
-### ### 🪄 Takeaway
-- I *git hooks remoti* possono automatizzare controlli e validazioni — utile anche in pipeline CI/CD;
-- Forzare il commit di file ignorati (`git add -f`) è una tecnica utile ma da usare con cautela.
+`.gitignore` controls normal Git tracking but does not prevent an explicitly forced addition.
+
+The level also demonstrates server-side repository validation through Git hooks.
 
 ---
 
-## ## 🔹 Livello 32 → 33
+## Level 32 → 33
 
-### ### 🎯 Obiettivo  
-Uscire da una shell limitata (“UPPERCASE SHELL”) e ottenere una shell reale per leggere la password per il livello 33.
+### Objective
 
-### ### 💻 Comandi principali
+Escape the uppercase command shell and obtain a normal shell.
+
+### Method
+
+The environment transforms ordinary command input before execution.
+
+The shell still performs variable expansion, which provides an alternative execution path.
+
+The `$0` shell parameter can be used to reference the current shell executable and escape the command filter.
+
+Once the shell is escaped, normal commands can be executed, including:
+
 ```bash
-# all'accesso viene mostrato "WELCOME TO THE UPPERCASE SHELL"
-# prompt: >>
-# digitare un comando che richiami la shell reale
-
-# stampa il nome della shell
-echo $0
-# output: sh
-# da qui, puoi usare comandi standard:
-ls
-whoami
 cat /etc/bandit_pass/bandit33
-# → password per il livello 33
-# [REDACTED_PASSWORD_BANDIT33]
 ```
 
-### ### 🧠 Spiegazione
-Il sistema sostituisce comandi digitati con la loro versione maiuscola, rendendoli invalidi (es. `ls` → `LS`).
-Digitando `$0`, si richiama il programma corrente (in questo caso `sh`) e si ottiene una shell interattiva standard. Da lì si possono eseguire normalmente i comandi Linux e leggere la password per il livello 33.
+### Takeaway
 
-### ### 🪄 Takeaway
-- `$0` è una variabile bash che rappresenta il nome del programma corrente, usarla può aprire una shell “vera” anche in ambienti limitati;
-- Molte restrizioni di shell si basano su alias o wrapper: conoscere i meccanismi base della shell aiuta a “sfuggire” da ambienti controllati.
+Command filters that operate on raw input can often be bypassed through shell parsing and expansion semantics.
+
+Security restrictions should constrain capabilities at the execution level rather than relying solely on textual command filtering.
 
 ---
 
-## 🏁 Epilogo
+# Security Concepts Demonstrated
 
-Completare **Bandit 0 → 33** consolida solide basi di UNIX, networking e pensiero sistematico.
+Bandit provides practical exposure to:
+
+- Linux enumeration
+- Shell parsing
+- File permissions
+- File ownership
+- Information disclosure
+- SSH authentication
+- SSH key management
+- TCP communication
+- TLS
+- Network reconnaissance
+- SUID privilege escalation
+- Cron-based privilege escalation
+- Predictable identifiers
+- Brute-force attacks
+- Restricted shell escapes
+- Git history analysis
+- Git branch and tag enumeration
+- Git hooks
+- Basic security automation
 
 ---
 
-## 🙏 Crediti 
+# Key Lessons
 
-**OverTheWire — Bandit** è un progetto degli autori OverTheWire. Tutti i diritti dei contenuti originali appartengono ai rispettivi proprietari.
+Several recurring principles emerge from the challenge:
+
+- Enumerate before attempting exploitation.
+- File names, permissions and ownership are security-relevant information.
+- Client-controlled input can cross security boundaries through unexpected interfaces.
+- Privileged processes require careful control of their inputs and execution paths.
+- Scheduled tasks can become privilege-escalation vectors when they execute attacker-controlled files.
+- Small secret spaces are vulnerable to exhaustive search.
+- Source-control history can retain information that is no longer visible.
+- Restricted shells are only as strong as the programs available inside them.
+- Understanding the underlying mechanism is more valuable than memorising individual commands.
+
+---
+
+# Conclusion
+
+Completing Bandit 0–33 provides a practical foundation in Linux security and command-line based investigation.
+
+The challenge progresses from basic filesystem and shell operations to networking, authentication, privilege escalation, scheduled execution, restricted environments and Git forensics.
+
+The most important outcome is the development of a repeatable methodology:
+
+```text
+Enumerate
+    ↓
+Inspect
+    ↓
+Understand execution context
+    ↓
+Identify trust boundaries
+    ↓
+Determine what can be influenced
+    ↓
+Test the boundary
+    ↓
+Verify the result
+```
+
+This methodology is applicable far beyond CTF environments and forms part of the foundation for practical Linux and cybersecurity work.
+
+---
+
+# Environment
+
+The walkthrough was originally performed using:
+
+```text
+Operating System: Ubuntu 22.04 LTS
+Shell: Bash
+Architecture: x86_64
+```
+
+Most commands rely on standard Unix/Linux utilities and can be adapted to other Linux distributions.
+
+---
+
+# Disclaimer
+
+This repository documents activity performed against the intentionally vulnerable OverTheWire Bandit environment.
+
+The techniques described are intended for educational purposes, CTFs, security laboratories and systems for which explicit authorization has been obtained.
+
+Do not apply these techniques to systems without authorization.
+
+---
+
+# Credits
+
+OverTheWire — Bandit
+
+https://overthewire.org/wargames/bandit/
+
+All original challenge content and infrastructure belong to OverTheWire and its respective authors.
+
+This repository contains personal notes and walkthrough material created for educational purposes.
+
+---
+
+# Status
+
+Bandit 0 → 33: Completed
